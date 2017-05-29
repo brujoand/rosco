@@ -2,26 +2,26 @@
 
 # ubuntu
 # check that owner group exists
-if [ -z `getent group spinnaker` ]; then
+if ! getent group spinnaker; then
   groupadd spinnaker
 fi
 
 # check that user exists
-if [ -z `getent passwd spinnaker` ]; then
+if ! getent passwd spinnaker; then
   useradd --gid spinnaker spinnaker -m --home-dir /home/spinnaker
 fi
 
 install_packer() {
-  PACKER_VERSION="0.12.1"
-  local packer_version=$(/usr/bin/packer --version)
-  local packer_status=$?
-  if [ $packer_status -ne 0 ] || [ "$packer_version" != "$PACKER_VERSION" ]; then
-    TEMPDIR=$(mktemp -d installrosco.XXXX)
-    cd $TEMPDIR
-    wget https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip
-    unzip -o "packer_${PACKER_VERSION}_linux_amd64.zip" -d /usr/bin
+  required_version='0.12.3'
+  current_version=$(/usr/bin/packer --version)
+  packer_status=$?
+  if [ $packer_status -ne 0 ] || [ "$current_version" != "$required_version" ]; then
+    temp_dir=$(mktemp -d installrosco.XXXX)
+    cd "$temp_dir"
+    wget https://releases.hashicorp.com/packer/${required_version}/packer_${required_version}_linux_amd64.zip
+    unzip -o "packer_${required_version}_linux_amd64.zip" -d /usr/bin
     cd ..
-    rm -rf $TEMPDIR
+    rm -rf "$temp_dir"
   fi
 }
 
